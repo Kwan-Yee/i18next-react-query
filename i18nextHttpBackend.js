@@ -42,6 +42,18 @@ var getDefaults = function getDefaults() {
       mode: 'cors',
       credentials: 'same-origin',
       cache: 'default'
+    },
+    queryClient: undefined,
+    tanstackQuery: {
+      enabled: false,
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
+      retry: 3,
+      retryDelay: function retryDelay(attemptIndex) {
+        return Math.min(1000 * Math.pow(2, attemptIndex), 30000);
+      },
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: true
     }
   };
 };
@@ -54,6 +66,7 @@ var Backend = function () {
     this.options = options;
     this.allOptions = allOptions;
     this.type = 'backend';
+    this.tanstackBackend = null;
     this.init(services, options, allOptions);
   }
   return _createClass(Backend, [{
@@ -65,12 +78,18 @@ var Backend = function () {
       this.services = services;
       this.options = _objectSpread(_objectSpread(_objectSpread({}, getDefaults()), this.options || {}), options);
       this.allOptions = allOptions;
+      this.initTanStackBackend();
       if (this.services && this.options.reloadInterval) {
         var timer = setInterval(function () {
           return _this.reload();
         }, this.options.reloadInterval);
         if (_typeof(timer) === 'object' && typeof timer.unref === 'function') timer.unref();
       }
+    }
+  }, {
+    key: "initTanStackBackend",
+    value: function initTanStackBackend() {
+      this.tanstackBackend = null;
     }
   }, {
     key: "readMulti",
@@ -107,6 +126,24 @@ var Backend = function () {
       var lng = typeof languages === 'string' ? [languages] : languages;
       var ns = typeof namespaces === 'string' ? [namespaces] : namespaces;
       var payload = this.options.parseLoadPayload(lng, ns);
+      if (this.tanstackBackend) {
+        this.tanstackBackend.requestWithCallback(this.options, url, payload, function (err, res) {
+          if (err) return callback(err, false);
+          var ret, parseErr;
+          try {
+            if (typeof res.data === 'string') {
+              ret = _this3.options.parse(res.data, languages, namespaces);
+            } else {
+              ret = res.data;
+            }
+          } catch (e) {
+            parseErr = 'failed parsing ' + url + ' to json';
+          }
+          if (parseErr) return callback(parseErr, false);
+          callback(null, ret);
+        });
+        return;
+      }
       this.options.request(this.options, url, payload, function (err, res) {
         if (res && (res.status >= 500 && res.status < 600 || !res.status)) return callback('failed loading ' + url + '; status code: ' + res.status, true);
         if (res && res.status >= 400 && res.status < 500) return callback('failed loading ' + url + '; status code: ' + res.status, false);
@@ -144,7 +181,7 @@ var Backend = function () {
       var finished = 0;
       var dataArray = [];
       var resArray = [];
-      languages.forEach(function (lng) {
+      var makeRequest = function makeRequest(lng) {
         var addPath = _this4.options.addPath;
         if (typeof _this4.options.addPath === 'function') {
           addPath = _this4.options.addPath(lng, namespace);
@@ -153,15 +190,27 @@ var Backend = function () {
           lng: lng,
           ns: namespace
         });
-        _this4.options.request(_this4.options, url, payload, function (data, res) {
-          finished += 1;
-          dataArray.push(data);
-          resArray.push(res);
-          if (finished === languages.length) {
-            if (typeof callback === 'function') callback(dataArray, resArray);
-          }
-        });
-      });
+        if (_this4.tanstackBackend) {
+          _this4.tanstackBackend.requestWithCallback(_this4.options, url, payload, function (data, res) {
+            finished += 1;
+            dataArray.push(data);
+            resArray.push(res);
+            if (finished === languages.length) {
+              if (typeof callback === 'function') callback(dataArray, resArray);
+            }
+          });
+        } else {
+          _this4.options.request(_this4.options, url, payload, function (data, res) {
+            finished += 1;
+            dataArray.push(data);
+            resArray.push(res);
+            if (finished === languages.length) {
+              if (typeof callback === 'function') callback(dataArray, resArray);
+            }
+          });
+        }
+      };
+      languages.forEach(makeRequest);
     }
   }, {
     key: "reload",
@@ -214,8 +263,7 @@ function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _getRequireWildcardCache(e) { if ("function" != typeof WeakMap) return null; var r = new WeakMap(), t = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(e) { return e ? t : r; })(e); }
-function _interopRequireWildcard(e, r) { if (!r && e && e.__esModule) return e; if (null === e || "object" != _typeof(e) && "function" != typeof e) return { default: e }; var t = _getRequireWildcardCache(r); if (t && t.has(e)) return t.get(e); var n = { __proto__: null }, a = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var u in e) if ("default" !== u && {}.hasOwnProperty.call(e, u)) { var i = a ? Object.getOwnPropertyDescriptor(e, u) : null; i && (i.get || i.set) ? Object.defineProperty(n, u, i) : n[u] = e[u]; } return n.default = e, t && t.set(e, n), n; }
+function _interopRequireWildcard(e, t) { if ("function" == typeof WeakMap) var r = new WeakMap(), n = new WeakMap(); return (_interopRequireWildcard = function _interopRequireWildcard(e, t) { if (!t && e && e.__esModule) return e; var o, i, f = { __proto__: null, default: e }; if (null === e || "object" != _typeof(e) && "function" != typeof e) return f; if (o = t ? n : r) { if (o.has(e)) return o.get(e); o.set(e, f); } for (var _t in e) "default" !== _t && {}.hasOwnProperty.call(e, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e[_t]); return f; })(e, t); }
 var fetchApi = typeof fetch === 'function' ? fetch : undefined;
 if (typeof global !== 'undefined' && global.fetch) {
   fetchApi = global.fetch;
