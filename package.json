@@ -32,18 +32,10 @@
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
     "react": ">=16.8.0",
-    "react-native": ">=0.60.0"
-  },
-  "peerDependenciesMeta": {
-    "@tanstack/react-query": {
-      "optional": true
-    },
-    "react": {
-      "optional": true
-    },
-    "react-native": {
-      "optional": true
-    }
+    "react-native": ">=0.60.0",
+    "@react-native-netinfo/netinfo": "^11.0.0",
+    "@types/react": ">=16.8.0",
+    "@types/react-native": ">=0.60.0"
   },
   "types": "./index.d.mts",
   "devDependencies": {
@@ -76,11 +68,17 @@
     "uglify-js": "3.19.3",
     "xmlhttprequest": "1.8.0"
   },
-  "description": "i18next-http-backend is a backend layer for i18next using in Node.js, in the browser and for Deno.",
+  "description": "i18next-http-backend with TanStack Query integration for React Native applications. Provides enhanced caching, retry logic, and React Native-specific optimizations.",
   "keywords": [
     "i18next",
     "i18next-backend",
-    "i18next-http-backend"
+    "i18next-http-backend",
+    "react-native",
+    "tanstack-query",
+    "react-query",
+    "mobile",
+    "caching",
+    "offline"
   ],
   "homepage": "https://github.com/i18next/i18next-http-backend",
   "repository": {

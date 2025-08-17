@@ -16,6 +16,7 @@
   },
   "rules": {
     "array-bracket-spacing": 0,
-    "n/no-callback-literal": 0
+    "n/no-callback-literal": 0,
+    "space-before-function-paren": 0
   }
 }

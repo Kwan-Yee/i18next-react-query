@@ -5,11 +5,13 @@
 
 import { QueryClientProvider } from '@tanstack/react-query'
 import i18next from 'i18next'
-import HttpBackend from 'i18next-http-backend'
-import { createReactNativeQueryClient, setupReactNativeQuery } from 'i18next-http-backend/lib/react-native-config'
 import React, { useEffect } from 'react'
+// @ts-ignore - peer dependencies not installed in development
 import { initReactI18next, useTranslation } from 'react-i18next'
+// @ts-ignore - peer dependencies not installed in development  
 import { Button, SafeAreaView, StyleSheet, Text, View } from 'react-native'
+import HttpBackend from '../../index.js'
+import { createReactNativeQueryClient, setupReactNativeQuery } from '../../lib/react-native-config'
 
 // Create QueryClient optimized for React Native
 const queryClient = createReactNativeQueryClient({

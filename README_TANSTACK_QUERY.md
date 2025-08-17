@@ -26,9 +26,9 @@ This document describes the TanStack Query integration added to `i18next-http-ba
 ## Installation
 
 ```bash
-npm install @tanstack/react-query
-# For React Native, also install:
-npm install @react-native-netinfo/netinfo
+npm install @tanstack/react-query react react-native @react-native-netinfo/netinfo
+# For TypeScript projects, also install:
+npm install @types/react @types/react-native
 ```
 
 ## Basic Usage
@@ -36,11 +36,11 @@ npm install @react-native-netinfo/netinfo
 ### 1. Setup QueryClient
 
 ```typescript
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createReactNativeQueryClient } from "i18next-http-backend/lib/react-native-config";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createReactNativeQueryClient } from 'i18next-http-backend/lib/react-native-config'
 
 // For React Native (recommended)
-const queryClient = createReactNativeQueryClient();
+const queryClient = createReactNativeQueryClient()
 
 // Or create manually with custom options
 const queryClient = new QueryClient({
@@ -48,21 +48,21 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
-      retry: 3,
-    },
-  },
-});
+      retry: 3
+    }
+  }
+})
 ```
 
 ### 2. Configure i18next Backend
 
 ```typescript
-import i18next from "i18next";
-import HttpBackend from "i18next-http-backend";
+import i18next from 'i18next'
+import HttpBackend from 'i18next-http-backend'
 
 i18next.use(HttpBackend).init({
   backend: {
-    loadPath: "/locales/{{lng}}/{{ns}}.json",
+    loadPath: '/locales/{{lng}}/{{ns}}.json',
 
     // Enable TanStack Query
     queryClient: queryClient,
@@ -71,21 +71,17 @@ i18next.use(HttpBackend).init({
       staleTime: 5 * 60 * 1000,
       cacheTime: 10 * 60 * 1000,
       retry: 3,
-      refetchOnReconnect: true,
-    },
-  },
-});
+      refetchOnReconnect: true
+    }
+  }
+})
 ```
 
 ### 3. Wrap Your App (React/React Native)
 
 ```typescript
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Your app components */}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{/* Your app components */}</QueryClientProvider>
 }
 ```
 
@@ -149,29 +145,22 @@ npm install @tanstack/react-query @react-native-netinfo/netinfo
 ### 2. Setup with React Native Optimizations
 
 ```typescript
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  createReactNativeQueryClient,
-  setupReactNativeQuery,
-} from "i18next-http-backend/lib/react-native-config";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { createReactNativeQueryClient, setupReactNativeQuery } from 'i18next-http-backend/lib/react-native-config'
 
 // Create optimized QueryClient
-const queryClient = createReactNativeQueryClient();
+const queryClient = createReactNativeQueryClient()
 
 // Setup React Native optimizations
-const cleanup = setupReactNativeQuery(queryClient);
+const cleanup = setupReactNativeQuery(queryClient)
 
 function App() {
   useEffect(() => {
     // Cleanup on unmount
-    return cleanup;
-  }, []);
+    return cleanup
+  }, [])
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Your app */}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{/* Your app */}</QueryClientProvider>
 }
 ```
 
@@ -183,7 +172,7 @@ i18next
   .use(initReactI18next)
   .init({
     backend: {
-      loadPath: "https://api.example.com/locales/{{lng}}/{{ns}}.json",
+      loadPath: 'https://api.example.com/locales/{{lng}}/{{ns}}.json',
       queryClient: queryClient,
       tanstackQuery: {
         enabled: true,
@@ -191,12 +180,12 @@ i18next
         staleTime: 15 * 60 * 1000, // 15 minutes
         cacheTime: 24 * 60 * 60 * 1000, // 24 hours
         retry: 2,
-        retryDelay: (attemptIndex) => Math.min(2000 * attemptIndex, 10000),
+        retryDelay: attemptIndex => Math.min(2000 * attemptIndex, 10000),
         refetchOnWindowFocus: false,
-        refetchOnReconnect: true,
-      },
-    },
-  });
+        refetchOnReconnect: true
+      }
+    }
+  })
 ```
 
 ## Advanced Usage
@@ -204,21 +193,21 @@ i18next
 ### Cache Management
 
 ```typescript
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from '@tanstack/react-query'
 
-const queryClient = useQueryClient();
+const queryClient = useQueryClient()
 
 // Invalidate all translation queries
-queryClient.invalidateQueries(["i18next"]);
+queryClient.invalidateQueries(['i18next'])
 
 // Invalidate specific language/namespace
-queryClient.invalidateQueries(["i18next", "load", "url-pattern"]);
+queryClient.invalidateQueries(['i18next', 'load', 'url-pattern'])
 
 // Clear all cache
-queryClient.clear();
+queryClient.clear()
 
 // Get cached data
-const cachedData = queryClient.getQueryData(["i18next", "load", "url"]);
+const cachedData = queryClient.getQueryData(['i18next', 'load', 'url'])
 ```
 
 ### Custom Error Handling
@@ -245,22 +234,22 @@ const cachedData = queryClient.getQueryData(["i18next", "load", "url"]);
 ### Performance Monitoring
 
 ```typescript
-import { QueryCache } from "@tanstack/react-query";
+import { QueryCache } from '@tanstack/react-query'
 
 const queryCache = new QueryCache({
   onSuccess: (data, query) => {
-    if (query.queryKey[0] === "i18next") {
-      console.log("Translation loaded:", query.queryKey);
+    if (query.queryKey[0] === 'i18next') {
+      console.log('Translation loaded:', query.queryKey)
     }
   },
   onError: (error, query) => {
-    if (query.queryKey[0] === "i18next") {
-      console.error("Translation failed:", query.queryKey, error);
+    if (query.queryKey[0] === 'i18next') {
+      console.error('Translation failed:', query.queryKey, error)
     }
-  },
-});
+  }
+})
 
-const queryClient = new QueryClient({ queryCache });
+const queryClient = new QueryClient({ queryCache })
 ```
 
 ## Migration Guide
@@ -276,7 +265,7 @@ const queryClient = new QueryClient({ queryCache });
 2. **Add QueryClient**:
 
    ```typescript
-   const queryClient = new QueryClient();
+   const queryClient = new QueryClient()
    ```
 
 3. **Update Backend Configuration**:

@@ -1,59 +1,51 @@
-import { QueryClient } from "@tanstack/react-query";
-import {
-  BackendModule,
-  MultiReadCallback,
-  ReadCallback,
-  ResourceKey,
-} from "i18next";
+import { QueryClient } from '@tanstack/react-query'
+import { BackendModule, MultiReadCallback, ReadCallback, ResourceKey } from 'i18next'
 
 type LoadPathOption =
   | string
   | ((lngs: string[], namespaces: string[]) => string)
-  | ((lngs: string[], namespaces: string[]) => Promise<string>);
+  | ((lngs: string[], namespaces: string[]) => Promise<string>)
 
-type AddPathOption = string | ((lng: string, namespace: string) => string);
+type AddPathOption = string | ((lng: string, namespace: string) => string)
 
-type FetchFunction = (
-  input: string,
-  init: RequestInit
-) => Promise<Response> | void;
+type FetchFunction = (input: string, init: RequestInit) => Promise<Response> | void
 
 interface TanStackQueryOptions {
   /**
    * Enable TanStack Query for HTTP requests
    * @default false
    */
-  enabled?: boolean;
+  enabled?: boolean
   /**
    * Time in milliseconds that data is considered fresh
    * @default 300000 (5 minutes)
    */
-  staleTime?: number;
+  staleTime?: number
   /**
    * Time in milliseconds that data stays in cache
    * @default 600000 (10 minutes)
    */
-  cacheTime?: number;
+  cacheTime?: number
   /**
    * Number of retry attempts for failed requests
    * @default 3
    */
-  retry?: number | boolean;
+  retry?: number | boolean
   /**
    * Delay between retry attempts
    * @default (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000)
    */
-  retryDelay?: number | ((attemptIndex: number) => number);
+  retryDelay?: number | ((attemptIndex: number) => number)
   /**
    * Refetch data when window regains focus
    * @default false
    */
-  refetchOnWindowFocus?: boolean;
+  refetchOnWindowFocus?: boolean
   /**
    * Refetch data when network reconnects
    * @default true
    */
-  refetchOnReconnect?: boolean;
+  refetchOnReconnect?: boolean
 }
 
 export interface HttpBackendOptions {
@@ -68,139 +60,104 @@ export interface HttpBackendOptions {
    * If the function is called and it returns anything BUT a promise the fetch or xmlHttpRequest will be subsequentially called
    *
    */
-  alternateFetch?: FetchFunction;
+  alternateFetch?: FetchFunction
   /**
    * path where resources get loaded from, or a function
    * returning a path:
    * function(lngs, namespaces) { return customPath; }
    * the returned path will interpolate lng, ns if provided like giving a static path
    */
-  loadPath?: LoadPathOption;
+  loadPath?: LoadPathOption
   /**
    * path to post missing resources, must be `string` or a `function` returning a path:
    * function(lng, namespace) { return customPath; }
    */
-  addPath?: AddPathOption;
+  addPath?: AddPathOption
   /**
    * parse data after it has been fetched
    * in example use https://www.npmjs.com/package/json5 or https://www.npmjs.com/package/jsonc-parser
    * here it removes the letter a from the json (bad idea)
    */
-  parse?(
-    data: string,
-    languages?: string | string[],
-    namespaces?: string | string[]
-  ): { [key: string]: any };
+  parse?(data: string, languages?: string | string[], namespaces?: string | string[]): { [key: string]: any }
   /**
    * parse data before it has been sent by addPath
    */
-  parsePayload?(
-    namespace: string,
-    key: string,
-    fallbackValue?: string
-  ): { [key: string]: any };
+  parsePayload?(namespace: string, key: string, fallbackValue?: string): { [key: string]: any }
   /**
    * parse data before it has been sent by loadPath
    * if value returned it will send a POST request
    */
-  parseLoadPayload?(
-    languages: string[],
-    namespaces: string[]
-  ): { [key: string]: any } | undefined;
+  parseLoadPayload?(languages: string[], namespaces: string[]): { [key: string]: any } | undefined
   /**
    * allow cross domain requests
    */
-  crossDomain?: boolean;
+  crossDomain?: boolean
   /**
    * allow credentials on cross domain requests
    */
-  withCredentials?: boolean;
+  withCredentials?: boolean
   /**
    * define a custom xhr function
    * can be used to support XDomainRequest in IE 8 and 9
    */
-  request?(
-    options: HttpBackendOptions,
-    url: string,
-    payload: {} | string,
-    callback: RequestCallback
-  ): void;
+  request?(options: HttpBackendOptions, url: string, payload: {} | string, callback: RequestCallback): void
   /**
    * adds parameters to resource URL. 'example.com' -> 'example.com?v=1.3.5'
    */
-  queryStringParams?: { [key: string]: string };
+  queryStringParams?: { [key: string]: string }
 
   /**
    * allows an object containing custom headers or a function that when called returns
    * an object of custom headers
    */
-  customHeaders?: { [key: string]: string } | (() => { [key: string]: string });
+  customHeaders?: { [key: string]: string } | (() => { [key: string]: string })
 
   /**
    * can be used to reload resources in a specific
    * interval (useful in server environments)
    */
-  reloadInterval?: false | number;
+  reloadInterval?: false | number
 
   /**
    * fetch api request options, can be a function
    */
-  requestOptions?: RequestInit | ((payload: {} | string) => RequestInit);
+  requestOptions?: RequestInit | ((payload: {} | string) => RequestInit)
 
   /**
    * TanStack Query client instance for enhanced caching and request management
    * When provided with tanstackQuery.enabled = true, will use TanStack Query for all HTTP requests
    */
-  queryClient?: QueryClient;
+  queryClient?: QueryClient
 
   /**
    * TanStack Query configuration options
    * Enables advanced caching, retry logic, and React Native optimizations
    */
-  tanstackQuery?: TanStackQueryOptions;
+  tanstackQuery?: TanStackQueryOptions
 
   /**
    * JSON stringify function for request payloads
    * @default JSON.stringify
    */
-  stringify?: (payload: any) => string;
+  stringify?: (payload: any) => string
 }
 
-type RequestCallback = (
-  error: any | undefined | null,
-  response: RequestResponse | undefined | null
-) => void;
+type RequestCallback = (error: any | undefined | null, response: RequestResponse | undefined | null) => void
 
 interface RequestResponse {
-  status: number;
-  data: ResourceKey;
+  status: number
+  data: ResourceKey
 }
 
-export default class I18NextHttpBackend
-  implements BackendModule<HttpBackendOptions>
-{
-  static type: "backend";
-  constructor(services?: any, options?: HttpBackendOptions);
-  init(services?: any, options?: HttpBackendOptions): void;
-  readMulti?(
-    languages: string[],
-    namespaces: string[],
-    callback: MultiReadCallback
-  ): void;
-  read(language: string, namespace: string, callback: ReadCallback): void;
-  loadUrl(
-    url: string,
-    callback: ReadCallback,
-    languages?: string | string[],
-    namespaces?: string | string[]
-  ): void;
-  create?(
-    languages: string[],
-    namespace: string,
-    key: string,
-    fallbackValue: string
-  ): void;
-  type: "backend";
-  services: any;
-  options: HttpBackendOptions;
+export default class I18NextHttpBackend implements BackendModule<HttpBackendOptions> {
+  static type: 'backend'
+  constructor(services?: any, options?: HttpBackendOptions)
+  init(services?: any, options?: HttpBackendOptions): void
+  readMulti?(languages: string[], namespaces: string[], callback: MultiReadCallback): void
+  read(language: string, namespace: string, callback: ReadCallback): void
+  loadUrl(url: string, callback: ReadCallback, languages?: string | string[], namespaces?: string | string[]): void
+  create?(languages: string[], namespace: string, key: string, fallbackValue: string): void
+  type: 'backend'
+  services: any
+  options: HttpBackendOptions
 }

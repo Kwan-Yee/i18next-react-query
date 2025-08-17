@@ -4,24 +4,24 @@
 [![Actions deno](https://github.com/i18next/i18next-http-backend/workflows/deno/badge.svg)](https://github.com/i18next/i18next-http-backend/actions?query=workflow%3Adeno)
 [![npm version](https://img.shields.io/npm/v/i18next-http-backend.svg?style=flat-square)](https://www.npmjs.com/package/i18next-http-backend)
 
-This is a simple i18next backend to be used in Node.js, in the browser and for Deno. It will load resources from a backend server using the XMLHttpRequest or the fetch API.
+This is an i18next backend specifically designed for React Native applications with TanStack Query integration. It provides enhanced caching, retry logic, and React Native-specific optimizations for loading translation resources from a backend server.
 
 Get a first idea on how it is used in [this i18next crash course video](https://youtu.be/SA_9i4TtxLQ?t=953).
 
 It's based on the deprecated [i18next-xhr-backend](https://github.com/i18next/i18next-xhr-backend) and can mostly be used as a drop-in replacement.
 
-*[Why i18next-xhr-backend was deprecated?](https://github.com/i18next/i18next-xhr-backend/issues/348#issuecomment-663060275)*
+_[Why i18next-xhr-backend was deprecated?](https://github.com/i18next/i18next-xhr-backend/issues/348#issuecomment-663060275)_
 
 ## Advice:
 
 If you don't like to manage your translation files manually or are simply looking for a [better management solution](https://locize.com), take a look at [i18next-locize-backend](https://github.com/locize/i18next-locize-backend). The i18next [backed plugin](https://www.i18next.com/overview/plugins-and-utils#backends) for 🌐 [locize](https://locize.com) ☁️.
 
-*To see [i18next-locize-backend](https://github.com/locize/i18next-locize-backend) in a working app example, check out:*
+_To see [i18next-locize-backend](https://github.com/locize/i18next-locize-backend) in a working app example, check out:_
 
-- *[this react-tutorial](https://github.com/locize/react-tutorial) starting from [Step 2](https://github.com/locize/react-tutorial#step-2---use-the-locize-cdn)*
-- *[this guide](https://locize.com/blog/react-i18next/) starting from the step of [replacing i18next-http-backend with i18next-locize-backend](https://locize.com/blog/react-i18next/#how-look)*
-- *[this Angular blog post](https://locize.com/blog/angular-i18next/) [introducing i18next-locize-backend](https://locize.com/blog/angular-i18next/#how-look)*
-- *[the code integration part](https://www.youtube.com/watch?v=TFV_vhJs5DY&t=294s) in this [YouTube video](https://www.youtube.com/watch?v=TFV_vhJs5DY)*
+- _[this react-tutorial](https://github.com/locize/react-tutorial) starting from [Step 2](https://github.com/locize/react-tutorial#step-2---use-the-locize-cdn)_
+- _[this guide](https://locize.com/blog/react-i18next/) starting from the step of [replacing i18next-http-backend with i18next-locize-backend](https://locize.com/blog/react-i18next/#how-look)_
+- _[this Angular blog post](https://locize.com/blog/angular-i18next/) [introducing i18next-locize-backend](https://locize.com/blog/angular-i18next/#how-look)_
+- _[the code integration part](https://www.youtube.com/watch?v=TFV_vhJs5DY&t=294s) in this [YouTube video](https://www.youtube.com/watch?v=TFV_vhJs5DY)_
 
 ## Troubleshooting
 
@@ -37,7 +37,7 @@ Try to set the `load` [option](https://www.i18next.com/overview/configuration-op
 
 ```javascript
 i18next.init({
-  load: 'languageOnly',
+  load: 'languageOnly'
   // other options
 })
 ```
@@ -49,63 +49,61 @@ i18next.init({
 The chance is high, that your http requests fails. In that case i18next retries a couple of times before finishing the initialization.
 You have 2 options to address this:
 
-*1) The correct way:*
+_1) The correct way:_
 Analyze your http requests and fix them. (Wrong path? Wrong server implementation? etc...)
 
-*2) Configure i18next to not retry:*
+_2) Configure i18next to not retry:_
 Modify the `retryTimeout` and/or `maxRetries` to match your needs. (i.e. set `maxRetries: 1`)
 
 ```js
 i18next.init({
   // ...
   retryTimeout: 350,
-  maxRetries: 5,
+  maxRetries: 5
   // ...
 })
 ```
 
 # Getting started
 
-Source can be loaded via [npm](https://www.npmjs.com/package/i18next-http-backend) or [downloaded](https://github.com/i18next/i18next-http-backend/blob/master/i18nextHttpBackend.min.js) from this repo.
-
-There's also the possibility to directly import it via a CDN like [jsdelivr](https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js) or [unpkg](https://unpkg.com/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js) or similar.
+Install the package via npm:
 
 ```bash
-# npm package
-$ npm install i18next-http-backend
+npm install i18next-http-backend @tanstack/react-query react react-native @react-native-netinfo/netinfo
+# For TypeScript projects:
+npm install @types/react @types/react-native
 ```
 
-Wiring up:
+Basic setup for React Native:
 
-```js
-import i18next from 'i18next';
-import HttpApi from 'i18next-http-backend';
+```typescript
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import i18next from 'i18next'
+import { initReactI18next } from 'react-i18next'
+import HttpBackend from 'i18next-http-backend'
+import { createReactNativeQueryClient } from 'i18next-http-backend/lib/react-native-config'
 
-i18next.use(HttpApi).init(i18nextOptions);
+// Create optimized QueryClient for React Native
+const queryClient = createReactNativeQueryClient()
+
+// Initialize i18next with TanStack Query support
+i18next
+  .use(HttpBackend)
+  .use(initReactI18next)
+  .init({
+    backend: {
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
+      queryClient: queryClient,
+      tanstackQuery: {
+        enabled: true
+      }
+    }
+  })
+
+function App() {
+  return <QueryClientProvider client={queryClient}>{/* Your React Native app components */}</QueryClientProvider>
+}
 ```
-
-for Deno:
-
-```js
-import i18next from 'https://deno.land/x/i18next/index.js'
-import Backend from 'https://deno.land/x/i18next_http_backend/index.js'
-
-i18next.use(Backend).init(i18nextOptions);
-```
-
-for plain browser:
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/i18next-http-backend@1.3.1/i18nextHttpBackend.min.js"></script>
-<!-- an example can be found in example/jquery/index.html -->
-```
-
-```js
-i18next.use(i18nextHttpBackend).init(i18nextOptions);
-```
-
-- As with all modules you can either pass the constructor function (class) to the i18next.use or a concrete instance.
-- If you don't use a module loader it will be added to `window.i18nextHttpBackend`
 
 ## Backend Options
 
@@ -203,27 +201,27 @@ Options can be passed in:
 **preferred** - by setting options.backend in i18next.init:
 
 ```js
-import i18next from 'i18next';
-import HttpApi from 'i18next-http-backend';
+import i18next from 'i18next'
+import HttpApi from 'i18next-http-backend'
 
 i18next.use(HttpApi).init({
-  backend: options,
-});
+  backend: options
+})
 ```
 
 on construction:
 
 ```js
-import HttpApi from 'i18next-http-backend';
-const HttpApi = new HttpApi(null, options);
+import HttpApi from 'i18next-http-backend'
+const HttpApi = new HttpApi(null, options)
 ```
 
 via calling init:
 
 ```js
-import HttpApi from 'i18next-http-backend';
-const HttpApi = new HttpApi();
-HttpApi.init(null, options);
+import HttpApi from 'i18next-http-backend'
+const HttpApi = new HttpApi()
+HttpApi.init(null, options)
 ```
 
 ## TypeScript
@@ -234,15 +232,13 @@ To properly type the backend options, you can import the `HttpBackendOptions` in
 import i18n from 'i18next'
 import HttpBackend, { HttpBackendOptions } from 'i18next-http-backend'
 
-i18n
-  .use(HttpBackend)
-  .init<HttpBackendOptions>({
-    backend: {
-      // http backend options
-    },
+i18n.use(HttpBackend).init<HttpBackendOptions>({
+  backend: {
+    // http backend options
+  }
 
-    // other i18next options
-  })
+  // other i18next options
+})
 ```
 
 ---
