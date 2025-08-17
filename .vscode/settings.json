@@ -1,0 +1,3 @@
+{
+    "i18next.i18nPaths": "/Users/tankwanyee/Desktop/i18next-react-query/example/deno/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/fallback/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/jquery/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/node/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/vue2/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/angular/src/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/next/public/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/vue/public/locales,/Users/tankwanyee/Desktop/i18next-react-query/example/i18next-vue/public/locales"
+}

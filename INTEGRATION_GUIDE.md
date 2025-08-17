@@ -17,9 +17,9 @@ npm install @react-native-netinfo/netinfo
 ### 2. Basic Setup
 
 ```javascript
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import i18next from "i18next";
-import HttpBackend from "i18next-http-backend";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import i18next from 'i18next'
+import HttpBackend from 'i18next-http-backend'
 
 // Create QueryClient
 const queryClient = new QueryClient({
@@ -27,15 +27,15 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       cacheTime: 10 * 60 * 1000, // 10 minutes
-      retry: 3,
-    },
-  },
-});
+      retry: 3
+    }
+  }
+})
 
 // Initialize i18next with TanStack Query support
 i18next.use(HttpBackend).init({
   backend: {
-    loadPath: "/locales/{{lng}}/{{ns}}.json",
+    loadPath: '/locales/{{lng}}/{{ns}}.json',
 
     // TanStack Query configuration
     queryClient: queryClient,
@@ -43,24 +43,20 @@ i18next.use(HttpBackend).init({
       enabled: true, // Enable TanStack Query
       staleTime: 5 * 60 * 1000,
       cacheTime: 10 * 60 * 1000,
-      retry: 3,
-    },
-  },
-});
+      retry: 3
+    }
+  }
+})
 ```
 
 ### 3. React/React Native App Setup
 
 ```jsx
-import React from "react";
-import { QueryClientProvider } from "@tanstack/react-query";
+import React from 'react'
+import { QueryClientProvider } from '@tanstack/react-query'
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Your app components */}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{/* Your app components */}</QueryClientProvider>
 }
 ```
 
@@ -75,28 +71,25 @@ npm install @react-native-netinfo/netinfo
 ### 2. Use React Native Optimizations
 
 ```javascript
-import {
-  createReactNativeQueryClient,
-  setupReactNativeQuery,
-} from "i18next-http-backend/lib/react-native-config";
+import { createReactNativeQueryClient, setupReactNativeQuery } from 'i18next-http-backend/lib/react-native-config'
 
 // Create optimized QueryClient for React Native
 const queryClient = createReactNativeQueryClient({
   defaultOptions: {
     queries: {
       staleTime: 15 * 60 * 1000, // 15 minutes for mobile
-      cacheTime: 24 * 60 * 60 * 1000, // 24 hours for mobile
-    },
-  },
-});
+      cacheTime: 24 * 60 * 60 * 1000 // 24 hours for mobile
+    }
+  }
+})
 
 // Setup React Native optimizations
-const cleanup = setupReactNativeQuery(queryClient);
+const cleanup = setupReactNativeQuery(queryClient)
 
 // In your App component
 useEffect(() => {
-  return cleanup; // Cleanup on unmount
-}, []);
+  return cleanup // Cleanup on unmount
+}, [])
 ```
 
 ### 3. Configure for React Native
@@ -107,7 +100,7 @@ i18next
   .use(initReactI18next)
   .init({
     backend: {
-      loadPath: "https://api.example.com/locales/{{lng}}/{{ns}}.json",
+      loadPath: 'https://api.example.com/locales/{{lng}}/{{ns}}.json',
       queryClient: queryClient,
       tanstackQuery: {
         enabled: true,
@@ -115,12 +108,12 @@ i18next
         staleTime: 15 * 60 * 1000, // 15 minutes
         cacheTime: 24 * 60 * 60 * 1000, // 24 hours
         retry: 2,
-        retryDelay: (attemptIndex) => Math.min(2000 * attemptIndex, 10000),
+        retryDelay: attemptIndex => Math.min(2000 * attemptIndex, 10000),
         refetchOnWindowFocus: false,
-        refetchOnReconnect: true,
-      },
-    },
-  });
+        refetchOnReconnect: true
+      }
+    }
+  })
 ```
 
 ## Configuration Options
@@ -161,23 +154,6 @@ i18next
 }
 ```
 
-## Platform-Specific Configurations
-
-### Web Application
-
-```javascript
-{
-  backend: {
-    tanstackQuery: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      cacheTime: 10 * 60 * 1000, // 10 minutes
-      refetchOnWindowFocus: true, // Good for web
-      refetchOnReconnect: true,
-    },
-  },
-}
-```
-
 ### Mobile Application (React Native)
 
 ```javascript
@@ -198,18 +174,18 @@ i18next
 ### Cache Management
 
 ```javascript
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from '@tanstack/react-query'
 
-const queryClient = useQueryClient();
+const queryClient = useQueryClient()
 
 // Invalidate all translations
-queryClient.invalidateQueries(["i18next"]);
+queryClient.invalidateQueries(['i18next'])
 
 // Invalidate specific language/namespace
-queryClient.invalidateQueries(["i18next", "load"]);
+queryClient.invalidateQueries(['i18next', 'load'])
 
 // Clear all cache
-queryClient.clear();
+queryClient.clear()
 ```
 
 ### Error Handling
@@ -230,22 +206,22 @@ queryClient.clear();
 ### Performance Monitoring
 
 ```javascript
-import { QueryCache } from "@tanstack/react-query";
+import { QueryCache } from '@tanstack/react-query'
 
 const queryCache = new QueryCache({
   onSuccess: (data, query) => {
-    if (query.queryKey[0] === "i18next") {
-      console.log("Translation loaded successfully");
+    if (query.queryKey[0] === 'i18next') {
+      console.log('Translation loaded successfully')
     }
   },
   onError: (error, query) => {
-    if (query.queryKey[0] === "i18next") {
-      console.error("Translation loading failed:", error);
+    if (query.queryKey[0] === 'i18next') {
+      console.error('Translation loading failed:', error)
     }
-  },
-});
+  }
+})
 
-const queryClient = new QueryClient({ queryCache });
+const queryClient = new QueryClient({ queryCache })
 ```
 
 ## Migration from Standard Backend
@@ -259,9 +235,9 @@ npm install @tanstack/react-query
 ### 2. Create QueryClient
 
 ```javascript
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient } from '@tanstack/react-query'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 ```
 
 ### 3. Update Backend Configuration
@@ -289,14 +265,10 @@ const queryClient = new QueryClient();
 ### 4. Wrap App with Provider
 
 ```jsx
-import { QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from '@tanstack/react-query'
 
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {/* Your existing app */}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{/* Your existing app */}</QueryClientProvider>
 }
 ```
 
