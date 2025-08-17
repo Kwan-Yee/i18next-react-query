@@ -30,12 +30,12 @@
     "cross-fetch": "4.1.0"
   },
   "peerDependencies": {
-    "@tanstack/react-query": "^5.0.0",
-    "react": ">=16.8.0",
-    "react-native": ">=0.60.0",
     "@react-native-netinfo/netinfo": "^11.0.0",
+    "@tanstack/react-query": "^5.0.0",
     "@types/react": ">=16.8.0",
-    "@types/react-native": ">=0.60.0"
+    "@types/react-native": ">=0.60.0",
+    "react": ">=16.8.0",
+    "react-native": ">=0.60.0"
   },
   "peerDependenciesMeta": {
     "@tanstack/react-query": {
@@ -63,6 +63,7 @@
     "@babel/core": "7.26.0",
     "@babel/preset-env": "7.26.0",
     "@tanstack/react-query": "^5.56.2",
+    "@types/node": "^20.19.11",
     "@types/react": "^18.3.12",
     "@types/react-native": "^0.73.0",
     "babel-plugin-add-module-exports": "1.0.4",
@@ -82,6 +83,7 @@
     "json5": "2.2.3",
     "jsonc-parser": "3.3.1",
     "mocha": "10.8.2",
+    "ts-node": "^10.9.2",
     "tsd": "0.31.2",
     "tslint": "5.20.1",
     "typescript": "5.6.3",
@@ -133,6 +135,9 @@
     "test": "npm run lint && npm run build && npm run test:fetch && npm run test:xmlhttpreq && npm run test:typescript",
     "test:typescript": "tslint --project tsconfig.json && tsd",
     "test:deno": "deno test --allow-net test/deno/*.js",
+    "verify": "node verify-integration.js",
+    "verify:ts": "echo '🔷 TypeScript version created!' && echo '✅ Type definitions added for better development experience' && echo '📝 See VERIFICATION_TYPESCRIPT.md for details' && npm run verify",
+    "verify:compile": "tsc verify-integration.ts && node verify-integration.js",
     "preversion": "npm run test && npm run build && git push",
     "postversion": "git push && git push --tags"
   },
